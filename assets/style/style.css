@@ -29,7 +29,25 @@
 .container {
   max-height: 95vh;
 }
-
+.range {
+  position: relative;
+}
+.rangevalue {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: -20px;
+  right: 50%;
+  border-radius: 50%;
+  background-color: black;
+  color: white;
+  line-height: 20px;
+  font-size: 15px;
+  text-align: center;
+}
+/* .hidden {
+  visibility: hidden;
+} */
 /* @import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
 * {
   padding: 0;
