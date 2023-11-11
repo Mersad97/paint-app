@@ -35,9 +35,6 @@ function enddraw() {
 window.addEventListener("mousedown", startdraw);
 window.addEventListener("mousemove", drawing);
 window.addEventListener("mouseup", enddraw);
-// canvas.addEventListener("mousedown", startdraw);
-// canvas.addEventListener("mousemove", drawing);
-// canvas.addEventListener("mouseup", enddraw);
 
 brushwidth.addEventListener("change", (e) => {
   currentsize = brushwidth.value;
