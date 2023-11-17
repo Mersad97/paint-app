@@ -8,10 +8,14 @@ const clear = document.querySelector(".clear");
 const save = document.querySelector(".save");
 const rangevalue = document.querySelector(".rangevalue");
 const straightline = document.querySelector(".straightline");
-let isDrawing = false;
-let currentcolor = "";
-let currentsize = 5;
-let drawLine = false;
+const rectangle = document.querySelector(".rectangle");
+let isDrawing = false,
+  currentcolor = "",
+  currentsize = 5,
+  drawLine = false,
+  drawRect = false,
+  rectX,
+  rectY;
 window.addEventListener("load", (e) => {
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
@@ -24,15 +28,18 @@ function startdraw(e) {
   ctx.beginPath();
   ctx.moveTo(e.offsetX, e.offsetY);
   ctx.lineWidth = currentsize;
-
   if (straightline.classList.contains("active")) {
     drawLine = true;
+  } else if (rectangle.classList.contains("active")) {
+    drawRect = true;
+    rectX = e.offsetX;
+    rectY = e.offsetY;
   } else {
     isDrawing = true;
   }
 }
 function drawing(e) {
-  if (!isDrawing || e.target.nodeName != "CANVAS" || drawLine)
+  if (!isDrawing || e.target.nodeName != "CANVAS" || drawLine || drawRect)
     return (isDrawing = false);
   ctx.lineTo(e.offsetX, e.offsetY);
   ctx.strokeStyle = `${currentcolor}`;
@@ -45,6 +52,10 @@ function enddraw(e) {
     ctx.strokeStyle = `${currentcolor}`;
     ctx.stroke();
     drawLine = false;
+  } else if (drawRect) {
+    ctx.strokeStyle = `${currentcolor}`;
+    ctx.strokeRect(rectX, rectY, e.offsetX - rectX, e.offsetY - rectY);
+    drawRect = false;
   }
 }
 function drawLineF() {}
@@ -68,12 +79,14 @@ eraser.addEventListener("click", () => {
   eraser.classList.add("active");
   brush.classList.remove("active");
   straightline.classList.remove("active");
+  rectangle.classList.remove("active");
 });
 brush.addEventListener("click", () => {
   currentcolor = brushcolor.value;
   brush.classList.add("active");
   eraser.classList.remove("active");
   straightline.classList.remove("active");
+  rectangle.classList.remove("active");
 });
 clear.addEventListener("click", () => {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -85,7 +98,16 @@ save.addEventListener("click", () => {
   link.click();
 });
 straightline.addEventListener("click", () => {
+  currentcolor = brushcolor.value;
   straightline.classList.add("active");
   eraser.classList.remove("active");
   brush.classList.remove("active");
+  rectangle.classList.remove("active");
+});
+rectangle.addEventListener("click", () => {
+  currentcolor = brushcolor.value;
+  straightline.classList.remove("active");
+  eraser.classList.remove("active");
+  brush.classList.remove("active");
+  rectangle.classList.add("active");
 });
