@@ -15,7 +15,9 @@ let isDrawing = false,
   drawLine = false,
   drawRect = false,
   rectX,
-  rectY;
+  rectY,
+  canvasX,
+  canvasY;
 window.addEventListener("load", (e) => {
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
@@ -58,10 +60,59 @@ function enddraw(e) {
     drawRect = false;
   }
 }
-function drawLineF() {}
+
+function touchStartDraw(e) {
+  canvasX = canvas.getBoundingClientRect().x;
+  canvasY = canvas.getBoundingClientRect().y;
+  if (e.target.nodeName != "CANVAS") return;
+  ctx.beginPath();
+  ctx.moveTo(e.touches[0].clientX - canvasX, e.touches[0].clientY - canvasY);
+  ctx.lineWidth = currentsize;
+  if (straightline.classList.contains("active")) {
+    drawLine = true;
+  } else if (rectangle.classList.contains("active")) {
+    drawRect = true;
+    rectX = e.touches[0].clientX - canvasX;
+    rectY = e.touches[0].clientY - canvasY;
+  } else {
+    isDrawing = true;
+  }
+}
+
+function touchDrawing(e) {
+  if (!isDrawing || e.target.nodeName != "CANVAS" || drawLine || drawRect)
+    return (isDrawing = false);
+  ctx.lineTo(e.touches[0].clientX - canvasX, e.touches[0].clientY - canvasY);
+  ctx.strokeStyle = `${currentcolor}`;
+  ctx.stroke();
+}
+
+function touchEndDraw(e) {
+  isDrawing = false;
+  if (drawLine) {
+    ctx.lineTo(e.touches[0].clientX - canvasX, e.touches[0].clientY - canvasY);
+    ctx.strokeStyle = `${currentcolor}`;
+    ctx.stroke();
+    drawLine = false;
+  } else if (drawRect) {
+    ctx.strokeStyle = `${currentcolor}`;
+    ctx.strokeRect(
+      rectX,
+      rectY,
+      e.touches[0].clientX - canvasX - rectX,
+      e.touches[0].clientY - canvasY - rectY
+    );
+    drawRect = false;
+  }
+}
+
 window.addEventListener("mousedown", startdraw);
 window.addEventListener("mousemove", drawing);
 window.addEventListener("mouseup", enddraw);
+
+window.addEventListener("touchstart", touchStartDraw);
+window.addEventListener("touchmove", touchDrawing);
+window.addEventListener("touchend", touchEndDraw);
 
 brushwidth.addEventListener("change", (e) => {
   currentsize = brushwidth.value;
