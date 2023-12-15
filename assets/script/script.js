@@ -9,13 +9,16 @@ const save = document.querySelector(".save");
 const rangevalue = document.querySelector(".rangevalue");
 const straightline = document.querySelector(".straightline");
 const rectangle = document.querySelector(".rectangle");
+const circle = document.querySelector(".circle");
 let isDrawing = false,
   currentcolor = "",
   currentsize = 5,
   drawLine = false,
   drawRect = false,
-  rectX,
-  rectY,
+  drawCircle = false,
+  startX,
+  startY,
+  radius,
   canvasX,
   canvasY;
 window.addEventListener("load", (e) => {
@@ -28,20 +31,31 @@ window.addEventListener("load", (e) => {
 function startdraw(e) {
   if (e.target.nodeName != "CANVAS") return;
   ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
   ctx.lineWidth = currentsize;
   if (straightline.classList.contains("active")) {
     drawLine = true;
+    ctx.moveTo(e.offsetX, e.offsetY);
   } else if (rectangle.classList.contains("active")) {
     drawRect = true;
-    rectX = e.offsetX;
-    rectY = e.offsetY;
+    ctx.moveTo(e.offsetX, e.offsetY);
+    startX = e.offsetX;
+    startY = e.offsetY;
+  } else if (circle.classList.contains("active")) {
+    drawCircle = true;
+    startX = e.offsetX;
+    startY = e.offsetY;
   } else {
     isDrawing = true;
   }
 }
 function drawing(e) {
-  if (!isDrawing || e.target.nodeName != "CANVAS" || drawLine || drawRect)
+  if (
+    !isDrawing ||
+    e.target.nodeName != "CANVAS" ||
+    drawLine ||
+    drawRect ||
+    drawCircle
+  )
     return (isDrawing = false);
   ctx.lineTo(e.offsetX, e.offsetY);
   ctx.strokeStyle = `${currentcolor}`;
@@ -56,8 +70,15 @@ function enddraw(e) {
     drawLine = false;
   } else if (drawRect) {
     ctx.strokeStyle = `${currentcolor}`;
-    ctx.strokeRect(rectX, rectY, e.offsetX - rectX, e.offsetY - rectY);
+    ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
     drawRect = false;
+  } else if (drawCircle) {
+    radius = Math.sqrt(
+      Math.pow(e.offsetX - startX, 2) + Math.pow(e.offsetY - startY, 2)
+    );
+    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    drawCircle = false;
   }
 }
 
@@ -72,15 +93,25 @@ function touchStartDraw(e) {
     drawLine = true;
   } else if (rectangle.classList.contains("active")) {
     drawRect = true;
-    rectX = e.touches[0].clientX - canvasX;
-    rectY = e.touches[0].clientY - canvasY;
+    startX = e.touches[0].clientX - canvasX;
+    startY = e.touches[0].clientY - canvasY;
+  } else if (circle.classList.contains("active")) {
+    drawCircle = true;
+    startX = e.touches[0].clientX - canvasX;
+    startY = e.touches[0].clientY - canvasY;
   } else {
     isDrawing = true;
   }
 }
 
 function touchDrawing(e) {
-  if (!isDrawing || e.target.nodeName != "CANVAS" || drawLine || drawRect)
+  if (
+    !isDrawing ||
+    e.target.nodeName != "CANVAS" ||
+    drawLine ||
+    drawRect ||
+    drawCircle
+  )
     return (isDrawing = false);
   ctx.lineTo(e.touches[0].clientX - canvasX, e.touches[0].clientY - canvasY);
   ctx.strokeStyle = `${currentcolor}`;
@@ -97,12 +128,20 @@ function touchEndDraw(e) {
   } else if (drawRect) {
     ctx.strokeStyle = `${currentcolor}`;
     ctx.strokeRect(
-      rectX,
-      rectY,
-      e.touches[0].clientX - canvasX - rectX,
-      e.touches[0].clientY - canvasY - rectY
+      startX,
+      startY,
+      e.touches[0].clientX - canvasX - startX,
+      e.touches[0].clientY - canvasY - startY
     );
     drawRect = false;
+  } else if (drawCircle) {
+    radius = Math.sqrt(
+      Math.pow(e.touches[0].clientX - canvasX - startX, 2) +
+        Math.pow(e.touches[0].clientY - canvasY - startY, 2)
+    );
+    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    drawCircle = false;
   }
 }
 
@@ -131,6 +170,7 @@ eraser.addEventListener("click", () => {
   brush.classList.remove("active");
   straightline.classList.remove("active");
   rectangle.classList.remove("active");
+  circle.classList.remove("active");
 });
 brush.addEventListener("click", () => {
   currentcolor = brushcolor.value;
@@ -138,6 +178,7 @@ brush.addEventListener("click", () => {
   eraser.classList.remove("active");
   straightline.classList.remove("active");
   rectangle.classList.remove("active");
+  circle.classList.remove("active");
 });
 clear.addEventListener("click", () => {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -153,6 +194,7 @@ straightline.addEventListener("click", () => {
   straightline.classList.add("active");
   eraser.classList.remove("active");
   brush.classList.remove("active");
+  circle.classList.remove("active");
   rectangle.classList.remove("active");
 });
 rectangle.addEventListener("click", () => {
@@ -160,5 +202,14 @@ rectangle.addEventListener("click", () => {
   straightline.classList.remove("active");
   eraser.classList.remove("active");
   brush.classList.remove("active");
+  circle.classList.remove("active");
   rectangle.classList.add("active");
+});
+circle.addEventListener("click", () => {
+  currentcolor = brushcolor.value;
+  straightline.classList.remove("active");
+  eraser.classList.remove("active");
+  brush.classList.remove("active");
+  rectangle.classList.remove("active");
+  circle.classList.add("active");
 });

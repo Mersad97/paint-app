@@ -1,4 +1,5 @@
 @import url(../../node_modules/bootstrap/dist/css/bootstrap.rtl.min.css);
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css");
 @media screen and (max-width: 576px) {
   #color-picker {
     width: 20px;
